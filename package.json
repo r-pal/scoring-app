@@ -8,10 +8,13 @@
   },
   "scripts": {
     "start": "node index.js",
+    "dev": "node index.js",
+    "demo": "cross-env DEMO_MODE=true node index.js",
     "seed:test": "cross-env NODE_ENV=test node prisma/seedTest.js",
     "test": "cross-env NODE_ENV=test jest --runInBand --env=node",
     "lint": "eslint",
-    "dev": "node index.js"
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@prisma/client": "^6.17.1",
@@ -26,6 +29,7 @@
     "@eslint/eslintrc": "^3",
     "@types/node": "^24.10.1",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^10.1.0",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",

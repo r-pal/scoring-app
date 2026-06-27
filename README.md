@@ -70,45 +70,81 @@ Part of the challenge was making sure responses were:
 
 ## Environment Variables
 
-Create a `.env` file in the root directory:
+Environment variables are **optional** — they're only needed when running against a real database (see "Running with a Real Database" below). Demo mode requires none.
 
-```env
-DATABASE_URL=postgresql://user:password@host:5432/postgres
-ADMIN_PASSWORD=your-admin-password
-ALLOWED_ORIGINS=http://localhost:5173,https://your-frontend-domain
-PORT=3000
+To configure them, copy the example file:
+
+```bash
+cp .env.example .env
 ```
+
+| Variable          | Description                                                      |
+| ----------------- | --------------------------------------------------------------- |
+| `DATABASE_URL`    | Postgres connection string (omit to run in demo mode)           |
+| `ADMIN_PASSWORD`  | Password for admin-protected actions (`x-admin-password` header) |
+| `ALLOWED_ORIGINS` | Comma-separated list of allowed frontend origins (CORS)         |
+| `PORT`            | Port the API listens on (default `3000`)                        |
 
 ### Notes
 
-- Use the Supabase Session Pooler URL when deployed (IPv4 compatible)  
-- Never commit `ADMIN_PASSWORD`  
-- `ALLOWED_ORIGINS` should be a comma-separated list  
+- For a hosted database (e.g. Supabase), set `DATABASE_URL` to your own connection string — use the Supabase Session Pooler URL when deployed (IPv4 compatible).
+- `.env` is gitignored; only `.env.example` is committed. Never commit real secrets.
 
 ---
 
-## Running Locally
+## Quick Start (Demo Mode)
 
-Clone the repository and install dependencies:
+The fastest way to try the API. **No database, no Docker, no configuration** — it runs on in-memory sample data (the same Houses, Factions, and Games used in the seed).
+
+All you need is [Node.js](https://nodejs.org/):
 
 ```bash
 npm install
+npm run demo
 ```
 
-Set up the database:
+The server starts at http://localhost:3000 with the full sample dataset loaded. Try it:
 
 ```bash
-npx prisma generate
-npx prisma migrate dev
+curl http://localhost:3000/api/houses
+curl http://localhost:3000/api/factions
+curl http://localhost:3000/api/games
 ```
 
-Start the development server:
+Notes on demo mode:
+
+- Data lives in memory only — it resets every time the server restarts.
+- Admin-protected actions use the password `admin` (sent via the `x-admin-password` header).
+- Demo mode is selected automatically whenever no `DATABASE_URL` is set, or explicitly via the `npm run demo` script.
+
+---
+
+## Running with a Real Database
+
+For persistent storage, point the app at a PostgreSQL database (local install or hosted, e.g. Supabase):
 
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Create your env file and set DATABASE_URL (and ADMIN_PASSWORD)
+cp .env.example .env
+
+# 3. Create the schema and load sample data
+npm run db:migrate
+npm run db:seed
+
+# 4. Start the server
 npm run dev
 ```
 
-The server will be available at: http://localhost:3000
+| Script               | What it does                          |
+| -------------------- | ------------------------------------- |
+| `npm run demo`       | Run with in-memory data (no database) |
+| `npm run dev`        | Run against the configured database   |
+| `npm run db:migrate` | Apply schema migrations (dev)         |
+| `npm run db:seed`    | Seed the database with sample data    |
+| `npm test`           | Run the test suite                    |
 
 ---
 
